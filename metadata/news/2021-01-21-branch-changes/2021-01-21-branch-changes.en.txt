@@ -4,8 +4,6 @@ Content-Type: text/plain
 Posted: 2021-01-21
 Revision: 1
 News-Item-Format: 2.0
-Display-If-Profile: genpi64:default/*
-Display-If-Profile: genpi64:default/linux/arm64/17.0/genpi64/*
 
 Please verify your overlay branch
 ----------------------------------
