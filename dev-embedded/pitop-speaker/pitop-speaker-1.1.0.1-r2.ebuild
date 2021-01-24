@@ -2,13 +2,13 @@
 # License: GPL v2 or GPL v3+
 # NO WARRANTY
 
-EAPI=6
-PYTHON_COMPAT=( python3_{4,5,6} )
+EAPI=7
+PYTHON_COMPAT=( python3_{6..9} )
 
-inherit distutils-r1 versionator
+inherit distutils-r1
 
 MY_PN="ptspeaker"
-MY_P="${MY_PN}-$(replace_version_separator 3 '.post')"
+MY_P="${MY_PN}-$(ver_rs 3 '.post')"
 
 DESCRIPTION="Initialize the pi-topSPEAKER addon board"
 HOMEPAGE="https://pypi.python.org/pypi/${MY_PN}"
