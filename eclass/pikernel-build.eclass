@@ -181,8 +181,8 @@ pikernel-build_src_install() {
 			KERNEL=kernel8
 			export KERNEL_SUFFIX=-v8
 		else
-			KERNEL=kernel8-pi4
-			export KERNEL_SUFFIX=-v8-pi4
+			KERNEL=kernel8-p4
+			export KERNEL_SUFFIX=-v8-p4
 		fi
 		insinto "/boot/"
 		doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
@@ -191,18 +191,12 @@ pikernel-build_src_install() {
 		insinto "/boot/overlays"
 		doins "${n}"/arch/arm64/boot/dts/overlays/*.dtb*
 
-	done
-
-	for n in "${targets[@]}"
-	do
-
-
-		insinto "/usr/src/linux-${ver}-${KERNEL_SUFFIX}"
+		insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
 		doins "${targets[0]}"/{System.map,Module.symvers}
 
 	# fix source tree and build dir symlinks
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}-${KERNEL_SUFFIX}/build
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}-${KERNEL_SUFFIX}/source
+		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
+		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
 	done
 	save_config "${configs[@]}"
 }
@@ -230,8 +224,8 @@ pikernel-build_merge_configs() {
 		KERNEL=kernel8
 		export KERNEL_SUFFIX=-v8
 		else
-		KERNEL=kernel8-pi4
-		export KERNEL_SUFFIX=-v8-pi4
+		KERNEL=kernel8-p4
+		export KERNEL_SUFFIX=-v8-p4
 		fi
 
 		[[ -f "${WORKDIR}/${f}/.config" ]] || die "${FUNCNAME}: {$f}/.config does not exist"
@@ -258,7 +252,7 @@ pikernel-build_merge_configs() {
 		if [ "${f}" == "bcmrpi3" ]; then
 				sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8\"_" .config
 		else
-				sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-pi4\"_" .config
+				sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
 		fi
 
 	done
