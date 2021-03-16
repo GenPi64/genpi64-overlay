@@ -1,0 +1,20 @@
+## boot templates for emerge of some packgs
+
+sys-boot/rpi3-boot-config
+dev-embedded/u-boot-tools
+sys-boot/raspberrypi-firmware
+
+# uboot 
+sys-boot/os-prober
+sys-boot/efibootmgr
+# sys-boot/grub
+sys-block/ms-sys
+#sys-boot/plymouth
+#sys-boot/plymouth-openrc-plugin
+
+# sys-boot/shim sys-boot/mokutil
+# sys-boot/gentoo-pi https://github.com/gkroon/gentoo-pi Overlay: 0bs1d1an  A script to install Gentoo on a Raspberry Pi 2/3
+
+# sys-kernel/buildkernel-dracut 
+# overlay thegreatmcpain
+# https://github.com/TheGreatMcPain/buildkernel-dracut 

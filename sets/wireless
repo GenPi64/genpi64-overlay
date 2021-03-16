@@ -1,0 +1,4 @@
+net-wireless/b43-fwcutter
+net-wireless/wireless-tools
+sys-firmware/b43-firmware
+sys-kernel/linux-firmware

@@ -1,0 +1,54 @@
+## feature usepkg will skip if not reqd 
+## rebuild portage basic toys an deps
+### add or mask as needed toy your tastes , basics portage , deps , and or wrappers ie eix etc.. 
+### aim is a few convience sets to emerge @portage-utils or @kde @xfce etc to make rebuilds easier or in smaller nibbles. 
+
+acct-user/portage
+acct-group/portage
+
+app-portage/gemato 
+app-crypt/openpgp-keys-gentoo-release
+## portage upgrade dep if needed rebuild ensure these get rebuilt ie python deps.  ie gentoo moves python-3.8 to 3.9 10 etc... 
+
+sys-apps/portage
+
+app-portage/eix
+
+app-portage/cfg-update
+
+app-portage/portage-utils
+
+app-portage/porticron
+
+app-portage/gentoolkit
+
+app-portage/getdelta
+
+app-portage/cpuid2cpuflags 
+
+app-portage/euses
+
+app-portage/repoman
+
+app-portage/portpeek
+
+app-portage/ufed 
+
+# app-portage/showbuild gentoo guru overlay 
+
+## Better tune rpi3/4 for highly optimzed make.conf etc... 
+
+# app-portage/gentoo-clang # Overlay: booboo
+
+app-portage/cfg-update
+
+app-portage/elt-patches
+
+app-portage/emtee
+
+app-portage/genup
+
+app-portage/showem
+
+# app-portage/gander # unmask if wanted or care to submit anon package use to gentoo 
+# Statistic submission client for Goose (anser.gentoo.org)

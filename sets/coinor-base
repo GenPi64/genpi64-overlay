@@ -1,0 +1,18 @@
+### sci libs , open office/libree office  suport addons
+virtual/blas
+virtual/lapack
+sci-libs/coinor-mp
+
+# USE="bzip2 doc glpk blas lapack static-libs test zlib" sci-libs/coinor-utils
+# sci-libs/coinor-mp deps =
+
+#sci-libs/coinor-cbc
+
+#sci-libs/coinor-cgl
+
+#sci-libs/coinor-clp
+
+#sci-libs/coinor-osi
+
+#sci-libs/coinor-utils
+#COIN-OR Matrix, Vector and other utility classes
