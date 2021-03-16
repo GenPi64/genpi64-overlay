@@ -1,13 +1,13 @@
 # Copyright 2018 sakaki (sakaki@deciban.com)
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python{3_5,3_6} )
+EAPI=7
+PYTHON_COMPAT=( python3_{6..9} )
 
 inherit distutils-r1 desktop xdg-utils
 
 DESCRIPTION="GUI editor for /boot/config.txt on RPi3 and RPi4 SBCs"
-BASE_SERVER_URI="https://github.com/sakaki-"
+BASE_SERVER_URI="https://github.com/sakaki-" # Required because it's available there.
 HOMEPAGE="${BASE_SERVER_URI}/${PN}"
 SRC_URI="${BASE_SERVER_URI}/${PN}/releases/download/v${PV}/${PN}-v${PV}.tar.gz"
 
@@ -19,7 +19,7 @@ KEYWORDS="~arm ~arm64"
 IUSE="-systemd"
 
 DEPEND="${PYTHON_DEPS}
-	>=xfce-base/xfce4-meta-4.12
+	x11-apps/xhost
 "
 
 RDEPEND="${DEPEND}
@@ -27,9 +27,9 @@ RDEPEND="${DEPEND}
 	!systemd? ( >=sys-apps/openrc-0.41 )
 	>=app-shells/bash-4.0
 	dev-python/PyQt5[${PYTHON_USEDEP}]
-	>=media-libs/raspberrypi-userland-1.20190808
+	media-libs/raspberrypi-userland
 	>=net-wireless/rpi3-wifi-regdom-1.1
-	>=sys-boot/rpi3-64bit-firmware-1.20190819
+	sys-boot/raspberrypi-firmware
 	>=sys-process/at-3.1.23
 	>=x11-misc/arandr-0.1.10
 	>=x11-misc/wmctrl-1.07-r2

@@ -1,11 +1,11 @@
 # Copyright (c) 2017-20 sakaki <sakaki@deciban.com>
-# License: GPL v3+
+# License: GPL v2 or GPL v3+
 # NO WARRANTY
 
 EAPI=6
 
 DESCRIPTION="Baseline packages for the gentoo-on-rpi-64bit image"
-HOMEPAGE="https://github.com/sakaki-/gentoo-on-rpi-64bit"
+HOMEPAGE="https://github.com/GenPi64/gentoo-on-rpi-64bit"
 SRC_URI=""
 
 LICENSE="metapackage"
@@ -192,7 +192,6 @@ RDEPEND="
 		>=sci-calculators/qalculate-gtk-3.2.0-r1
 		>=sci-calculators/speedcrunch-0.12.0
 		>=sys-apps/firejail-0.9.62
-		>=sys-apps/pyconfig_gen-1.1.9-r1
 		>=sys-block/gparted-1.1.0-r1[sudo(-)]
 		>=x11-apps/mesa-progs-8.4.0
 		>=x11-apps/xclock-1.0.9
