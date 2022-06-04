@@ -1,6 +1,8 @@
 app-editors/nano
+app-editors/vim
 sys-process/atop
 sys-process/htop
+app-portage/eix
 app-portage/gentoolkit
 app-portage/repoman
 app-eselect/eselect-timezone
