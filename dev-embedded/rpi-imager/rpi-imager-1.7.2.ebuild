@@ -4,9 +4,9 @@
 
 EAPI=7
 
-inherit cmake-utils flag-o-matic
+inherit cmake flag-o-matic
 
-MY_PV="1.6"
+MY_PV="1.7.2"
 
 CMAKE_MAKEFILE_GENERATOR="emake"
 CMAKE_IN_SOURCE_BUILD=1
@@ -27,12 +27,12 @@ RDEPEND="${DEPEND}"
 BDEPEND="dev-util/cmake"
 
 src_prepare() {
-    cmake-utils_src_prepare
+    cmake_src_prepare
 }
 
 src_configure() {
     local mycmakeargs=(
     )
-    cmake-utils_src_configure
+    cmake_src_configure
 }
 
