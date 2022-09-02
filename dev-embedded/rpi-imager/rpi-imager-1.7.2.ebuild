@@ -1,5 +1,3 @@
-
-# Copyright 2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,7 +13,7 @@ DESCRIPTION="Raspberry Pi Imager (WIP ebuild)"
 HOMEPAGE="https://github.com/raspberrypi/rpi-imager"
 SRC_URI="https://github.com/raspberrypi/rpi-imager/archive/v${MY_PV}.tar.gz"
 
-S="${WORKDIR}/rpi-imager-${MY_PV}"
+S="${WORKDIR}/${P}/src"
 
 LICENSE="Apache"
 SLOT="0"
@@ -24,15 +22,3 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="${DEPEND}"
-BDEPEND="dev-util/cmake"
-
-src_prepare() {
-    cmake_src_prepare
-}
-
-src_configure() {
-    local mycmakeargs=(
-    )
-    cmake_src_configure
-}
-
