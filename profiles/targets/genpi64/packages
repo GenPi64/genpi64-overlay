@@ -36,7 +36,3 @@ sys-apps/rpi-spi
 sys-apps/rpi-video
 sys-apps/i2c-tools
 sys-boot/raspberrypi-firmware
-# Replaces repoman.
-dev-util/pkgdev
-dev-util/pkgcheck
-# End of repoman replacement.
