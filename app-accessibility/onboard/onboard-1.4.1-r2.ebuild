@@ -11,17 +11,17 @@ inherit distutils-r1 gnome2-utils
 
 DESCRIPTION="An onscreen keyboard useful for tablet PC users and for mobility impaired users"
 HOMEPAGE="https://launchpad.net/onboard"
-# Ojo Staba Mal
-#SRC_URI="https://github.com/linuxdeepin/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-SRC_URI="https://launchpad.net/${PN}/$(ver_cut 1-2)/${PV}/+download/${P}.tar.gz"
+# Using of PN variable avoided, Following note in
+# https://wiki.gentoo.org/wiki/Basic_guide_to_write_Gentoo_Ebuilds
+SRC_URI="https://launchpad.net/onboard/$(ver_cut 1-2)/${PV}/+download/${P}.tar.gz"
 
 # po/* are licensed under BSD 3-clause
 LICENSE="GPL-3+ BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="~amd64 arm arm64 ~x86"
 
 COMMON_DEPEND="app-text/hunspell:=
-	dev-libs/dbus-glib
+	dev-libs/dbus-glib these deps,
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	dev-python/pycairo[${PYTHON_USEDEP}]
 	dev-python/pygobject:3[${PYTHON_USEDEP}]
@@ -46,15 +46,10 @@ RDEPEND="${COMMON_DEPEND}
 	gnome-extra/mousetweaks
 	x11-libs/libxkbfile"
 
-RESTRICT="mirror"
-
-src_prepare() {
-	distutils-r1_src_prepare
-	eapply_user
-}
-
 src_install() {
 	distutils-r1_src_install
+	# Delete duplicated docs installed by original dustutils
+	rm "${D}"/usr/share/doc/onboard/*
 }
 
 pkg_preinst() {
