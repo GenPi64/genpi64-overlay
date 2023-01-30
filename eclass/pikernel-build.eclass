@@ -17,29 +17,9 @@
 # the kernel and installing it along with its modules and subset
 # of sources needed to build external modules.
 #
-# Based off kernel-build.eclass by Michał Górny <mgorny@gentoo.org>
-
-
-if [[ ! ${_KERNEL_BUILD_ECLASS} ]]; then
-
-case "${EAPI:-0}" in
-	0|1|2|3|4|5|6)
-		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
-		;;
-	7)
-		;;
-	*)
-		die "Unsupported EAPI=${EAPI} (unknown) for ${ECLASS}"
-		;;
-esac
+# Based off / inherits from kernel-build.eclass by Michał Górny <mgorny@gentoo.org>
 
 inherit kernel-build
-
-BDEPEND="
-	sys-devel/bc
-	sys-devel/flex
-	virtual/libelf
-	virtual/yacc"
 
 IUSE="bcmrpi bcm2709 bcmrpi3 +bcm2711 -initramfs"
 REQUIRED_USE="|| ( bcmrpi bcm2709 bcmrpi3 bcm2711 )"
@@ -60,6 +40,7 @@ pikernel-build_get_targets() {
 	done
 }
 
+
 # @FUNCTION: pikernel-build_src_configure
 # @DESCRIPTION:
 # Prepare the toolchain for building the kernel, get the default .config
@@ -77,17 +58,18 @@ pikernel-build_src_configure() {
 
 	for n in "${targets[@]}"
 	do
-		[[ -f $n/.config ]] || 	emake O="${WORKDIR}/${n}" ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- "${n}_defconfig"
-		internal_src_configure aarch64-unknown-linux-gnu $n
+		[[ -f $n/.config ]] || emake O="${WORKDIR}/${n}" ARCH=arm64 CROSS_COMPILE=aarch64-unknown-linux-gnu- "${n}_defconfig"
+		export CHOST=aarch64-unknown-linux-gnu
+		internal_src_configure $n
 		ebegin "Selecting Kernel Config"
-
 	done
 	pikernel-build_merge_configs "${merge_configs[@]}"
-
-
-
 }
 
+# Almost the same as kernel-build_src_configure
+# but some parts got chopped off, and
+# the last line is changed to support being called in a for-loop.
+# TODO: It'd be great if we could call kernel-build_src_configure instead
 internal_src_configure() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -96,8 +78,6 @@ internal_src_configure() {
 	if type -P "${LD}.bfd" &>/dev/null; then
 		LD+=.bfd
 	fi
-
-
 
 	tc-export_build_env
 	MAKEARGS=(
@@ -108,7 +88,7 @@ internal_src_configure() {
 		HOSTCFLAGS="${BUILD_CFLAGS}"
 		HOSTLDFLAGS="${BUILD_LDFLAGS}"
 
-		CROSS_COMPILE=${1}-
+		CROSS_COMPILE=${CHOST}-
 		AS="$(tc-getAS)"
 		CC="$(tc-getCC)"
 		LD="${LD}"
@@ -121,8 +101,9 @@ internal_src_configure() {
 		# we need to pass it to override colliding Gentoo envvar
 		ARCH=$(tc-arch-kernel)
 	)
-	emake O="${WORKDIR}/${2}" "${MAKEARGS[@]}" olddefconfig
+	emake O="${WORKDIR}/${1}" "${MAKEARGS[@]}" olddefconfig
 }
+
 
 # @FUNCTION: kernel-build_src_compile
 # @DESCRIPTION:
@@ -133,10 +114,8 @@ pikernel-build_src_compile() {
 	pikernel-build_get_targets
 	for n in "${targets[@]}"
 	do
-	emake O="${WORKDIR}/$n" "${MAKEARGS[@]}" Image modules dtbs
+		emake O="${WORKDIR}/$n" "${MAKEARGS[@]}" Image modules dtbs
 	done
-
-
 }
 
 
@@ -151,8 +130,7 @@ pikernel-build_src_install() {
 
 	for n in "${targets[@]}"
 	do
-		emake O="${WORKDIR}/${n}" "${MAKEARGS[@]}" \
-		  INSTALL_MOD_PATH="${ED}" INSTALL_PATH="${ED}/boot" modules_install
+		emake O="${WORKDIR}/${n}" "${MAKEARGS[@]}" INSTALL_MOD_PATH="${ED}" INSTALL_PATH="${ED}/boot" modules_install
 	done
 
 	# note: we're using mv rather than doins to save space and time
@@ -161,8 +139,7 @@ pikernel-build_src_install() {
 	local ver="${PV}"
 	dodir "/usr/src/linux-${ver}/arch/${kern_arch}"
 	mv include scripts "${ED}/usr/src/linux-${ver}/" || die
-	mv "arch/${kern_arch}/include" \
-		"${ED}/usr/src/linux-${ver}/arch/${kern_arch}/" || die
+	mv "arch/${kern_arch}/include" "${ED}/usr/src/linux-${ver}/arch/${kern_arch}/" || die
 	# some arches need module.lds linker script to build external modules
 	if [[ -f arch/${kern_arch}/kernel/module.lds ]]; then
 		insinto "/usr/src/linux-${ver}/arch/${kern_arch}/kernel"
@@ -170,8 +147,7 @@ pikernel-build_src_install() {
 	fi
 
 	# remove everything but Makefile* and Kconfig*
-	find -type f '!' '(' -name 'Makefile*' -o -name 'Kconfig*' ')' \
-		-delete || die
+	find -type f '!' '(' -name 'Makefile*' -o -name 'Kconfig*' ')' -delete || die
 	find -type l -delete || die
 	cp -p -R * "${ED}/usr/src/linux-${ver}/" || die
 
@@ -196,18 +172,19 @@ pikernel-build_src_install() {
 		insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
 		doins "${targets[0]}"/{System.map,Module.symvers}
 
-	# fix source tree and build dir symlinks
+		# fix source tree and build dir symlinks
 		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
 		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
 	done
 	save_config "${configs[@]}"
 }
 
-# Override function from kernel-install eclass to skip checking of kernel.release file(s).
+# Hack: Override function from kernel-install eclass to skip checking of kernel.release file(s).
 pikernel-build_pkg_preinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 }
 
+# Hack: Override function from kernel-install eclass to skip building of initramfs.
 pikernel-build_pkg_postinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 }
@@ -227,16 +204,15 @@ pikernel-build_merge_configs() {
 	for f in "${targets[@]}"
 	do
 		if [ "${f}" == "bcmrpi3" ]; then
-		KERNEL=kernel8
-		export KERNEL_SUFFIX=-v8
+			KERNEL=kernel8
+			export KERNEL_SUFFIX=-v8
 		else
-		KERNEL=kernel8-p4
-		export KERNEL_SUFFIX=-v8-p4
+			KERNEL=kernel8-p4
+			export KERNEL_SUFFIX=-v8-p4
 		fi
 
 		[[ -f "${WORKDIR}/${f}/.config" ]] || die "${FUNCNAME}: {$f}/.config does not exist"
-		has .config "${@}" &&
-		die "${FUNCNAME}: do not specify .config as parameter"
+		has .config "${@}" && die "${FUNCNAME}: do not specify .config as parameter"
 
 		local shopt_save=$(shopt -p nullglob)
 		shopt -s nullglob
@@ -244,27 +220,23 @@ pikernel-build_merge_configs() {
 		shopt -u nullglob
 
 		if [[ ${#user_configs[@]} -gt 0 ]]; then
-		elog "User config files are being applied:"
-		local x
-		for x in "${user_configs[@]}"; do
-			elog "- ${x}"
-		done
+			elog "User config files are being applied:"
+			local x
+			for x in "${user_configs[@]}"; do
+				elog "- ${x}"
+			done
 		fi
 
 		cd "${WORKDIR}/${f}"
 
-		./source/scripts/kconfig/merge_config.sh -m -r \
-							 ".config" "${@}" "${user_configs[@]}" || die
+		./source/scripts/kconfig/merge_config.sh -m -r ".config" "${@}" "${user_configs[@]}" || die
 		if [ "${f}" == "bcmrpi3" ]; then
-				sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8\"_" .config
+			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8\"_" .config
 		else
-				sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
+			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
 		fi
 
 	done
 }
 
-_KERNEL_BUILD_ECLASS=1
-fi
-
-EXPORT_FUNCTIONS src_configure src_compile src_install merge_configs pkg_postinst
+EXPORT_FUNCTIONS src_configure src_compile src_install pkg_postinst
