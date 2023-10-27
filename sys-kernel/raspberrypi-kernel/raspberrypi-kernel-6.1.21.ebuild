@@ -45,7 +45,7 @@ SRC_URI+="
 S=${WORKDIR}/${MY_P}
 
 LICENSE="GPL-2"
-KEYWORDS="~arm ~arm64"
+KEYWORDS="~arm arm64"
 IUSE="debug hardened"
 REQUIRED_USE="
 	arm? ( savedconfig )
