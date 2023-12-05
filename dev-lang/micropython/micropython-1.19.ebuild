@@ -23,7 +23,6 @@ RDEPEND="!dev-lang/micropython:0"
 
 PATCHES=(
 	"${FILESDIR}/${P}-prevent-stripping.patch"
-	"${FILESDIR}/${PN}-${SLOT}-bin-name.patch"
 )
 
 src_prepare() {
