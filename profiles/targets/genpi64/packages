@@ -25,7 +25,6 @@ sys-apps/rpi3-init-scripts
 sys-apps/rpi3-ondemand-cpufreq
 app-portage/showem
 dev-embedded/rpi-eeprom
-media-libs/raspberrypi-userland
 net-wireless/rpi3-wifi-regdom
 sys-apps/rpi-gpio
 sys-apps/rpi-i2c
