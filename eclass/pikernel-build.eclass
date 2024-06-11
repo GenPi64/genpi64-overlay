@@ -21,15 +21,16 @@
 
 inherit kernel-build
 
-IUSE="bcmrpi bcm2709 bcmrpi3 +bcm2711 -initramfs"
-REQUIRED_USE="|| ( bcmrpi bcm2709 bcmrpi3 bcm2711 )"
+IUSE="bcmrpi bcm2709 bcmrpi3 +bcm2711 +bcm2712 -initramfs"
+REQUIRED_USE="|| ( bcmrpi bcm2709 bcmrpi3 bcm2711 bcm2712 )"
 
 SLOT="0"
 
 pikernel-build_get_targets() {
 	targets=()
 	configs=()
-	for n in bcmrpi bcm2709 bcmrpi3 bcm2711
+#	for n in bcmrpi bcm2709 bcmrpi3 bcm2711 bcm2712
+	for n in  bcm2711 bcm2712
 	do
 	if use ${n}; then
 		ebegin "using $n"
@@ -155,12 +156,14 @@ pikernel-build_src_install() {
 	for n in "${targets[@]}"
 	do
 		ebegin "Installing ${n}"
-		if [ "${n}" == "bcmrpi3" ]; then
-			KERNEL=kernel8
-			export KERNEL_SUFFIX=-v8
-		else
+		if [ "${n}" == "bcm2711" ]; then
 			KERNEL=kernel8-p4
 			export KERNEL_SUFFIX=-v8-p4
+		elif [ "${n}" == "bcm2712" ]; then
+			KERNEL=kernel8_2712
+			export KERNEL_SUFFIX=-2712
+		else
+			die "Unkown target ${f}"
 		fi
 		insinto "/boot/"
 		doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
@@ -203,12 +206,14 @@ pikernel-build_merge_configs() {
 	ebegin "Merging kernel configs"
 	for f in "${targets[@]}"
 	do
-		if [ "${f}" == "bcmrpi3" ]; then
-			KERNEL=kernel8
-			export KERNEL_SUFFIX=-v8
-		else
+		if [ "${f}" == "bcm2711" ]; then
 			KERNEL=kernel8-p4
 			export KERNEL_SUFFIX=-v8-p4
+		elif [ "${f}" == "bcm2712" ]; then
+			KERNEL=kernel8_2712
+			export KERNEL_SUFFIX=-2712
+		else
+			die "Unkown target ${f}"
 		fi
 
 		[[ -f "${WORKDIR}/${f}/.config" ]] || die "${FUNCNAME}: {$f}/.config does not exist"
@@ -230,10 +235,10 @@ pikernel-build_merge_configs() {
 		cd "${WORKDIR}/${f}"
 
 		./source/scripts/kconfig/merge_config.sh -m -r ".config" "${@}" "${user_configs[@]}" || die
-		if [ "${f}" == "bcmrpi3" ]; then
-			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8\"_" .config
-		else
+		if [ "${f}" == "bcm2711" ]; then
 			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
+		else
+			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-16k\"_" .config
 		fi
 
 	done

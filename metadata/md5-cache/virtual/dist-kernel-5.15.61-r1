@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual to depend on any Distribution Kernel
+EAPI=7
+KEYWORDS=~arm arm64
+RDEPEND=|| ( ~sys-kernel/raspberrypi-kernel-5.15.61 )
+SLOT=0/5.15.61
+_md5_=de44c123364cf1f839e6fd14c55275e8
