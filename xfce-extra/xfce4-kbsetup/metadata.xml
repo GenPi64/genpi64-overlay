@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
-<pkgmetadata>
-<longdescription>
-	Checks if the current user has keyboard layouts set up, and
-	if so, applies them; used to get around bug where Xfce does
-	not set up the correct initial keyboard on login.
-</longdescription>
-</pkgmetadata>
