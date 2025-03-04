@@ -1,4 +1,4 @@
-EAPI=6
+EAPI=8
 inherit git-r3
 
 KEYWORDS="arm arm64"
@@ -20,8 +20,8 @@ DEPEND=""
 RDEPEND="${DEPEND}"
 
 src_prepare() {
-   wget https://raw.githubusercontent.com/RPi-Distro/bluez-firmware/8445a53ce2c51a77472b908a0c8f6f8e1fa5c37a/broadcom/BCM43430A1.hcd
-   eapply_user
+	cp ${FILESDIR}/BCM43430A1-${PV}.hcd BCM43430A1.hcd
+	eapply_user
 }
 
 src_install() {
@@ -29,5 +29,3 @@ src_install() {
 	doins BCM43430A1.hcd
 	dodoc LICENCE.broadcom_bcm43xx
 }
-
-
