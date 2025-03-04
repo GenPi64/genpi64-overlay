@@ -1,8 +1,9 @@
 # Copyright (c) 2019 sakaki <sakaki@deciban.com>
 # License: GPL v2 or GPL v3+
 # NO WARRANTY
+EAPI=8
 
-EAPI=6
+inherit systemd
 
 KEYWORDS="~arm arm64"
 
@@ -28,6 +29,8 @@ src_install() {
 	exeinto /boot
 	newexe "${FILESDIR}/startup.sh-2" "startup.sh"
 	newenvd "${FILESDIR}"/config_protect-1 99${PN}
+	newexe "${FILESDIR}/autoexpand_root.sh-5" "autoexpand_root.sh"
+	systemd_newunit "${FILESDIR}/autoexpand_root.service-5" "autoexpand_root.service"
 }
 
 pkg_postinst() {
