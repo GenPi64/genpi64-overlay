@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Gentoo Authors
+# Copyright 2020-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: pikernel-build.eclass
@@ -21,15 +21,15 @@
 
 inherit kernel-build
 
-IUSE="bcmrpi bcm2709 bcmrpi3 +bcm2711 -initramfs"
-REQUIRED_USE="|| ( bcmrpi bcm2709 bcmrpi3 bcm2711 )"
+IUSE="+bcm2711 +bcm2712 -initramfs"
+REQUIRED_USE="|| ( bcm2711 bcm2712)"
 
 SLOT="0"
 
 pikernel-build_get_targets() {
 	targets=()
 	configs=()
-	for n in bcmrpi bcm2709 bcmrpi3 bcm2711
+	for n in bcm2711 bcm2712
 	do
 	if use ${n}; then
 		ebegin "using $n"
@@ -154,27 +154,29 @@ pikernel-build_src_install() {
 	cd "${WORKDIR}" || die
 	for n in "${targets[@]}"
 	do
-		ebegin "Installing ${n}"
-		if [ "${n}" == "bcmrpi3" ]; then
-			KERNEL=kernel8
-			export KERNEL_SUFFIX=-v8
-		else
-			KERNEL=kernel8-p4
-			export KERNEL_SUFFIX=-v8-p4
-		fi
-		insinto "/boot/"
-		doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
-		cp "${n}/arch/arm64/boot/Image" "${n}/arch/arm64/boot/$KERNEL.img"
-		doins "${n}/arch/arm64/boot/$KERNEL.img"
-		insinto "/boot/overlays"
-		doins "${n}"/arch/arm64/boot/dts/overlays/*.dtb*
+        ebegin "Installing ${n}"
+        if [ "${n}" == "bcm2711" ]; then
+            KERNEL=kernel8-p4
+            export KERNEL_SUFFIX=-v8-p4
+        elif [ "${n}" == "bcm2712" ]; then
+            KERNEL=kernel8_2712
+            export KERNEL_SUFFIX=-2712
+        else
+            die "Unkown target ${f}"
+        fi
+        insinto "/boot/"
+        doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
+        cp "${n}/arch/arm64/boot/Image" "${n}/arch/arm64/boot/$KERNEL.img"
+        doins "${n}/arch/arm64/boot/$KERNEL.img"
+        insinto "/boot/overlays"
+        doins "${n}"/arch/arm64/boot/dts/overlays/*.dtb*
 
-		insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
-		doins "${targets[0]}"/{System.map,Module.symvers}
+        insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
+        doins "${targets[0]}"/{System.map,Module.symvers}
 
-		# fix source tree and build dir symlinks
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
+        # fix source tree and build dir symlinks
+        dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
+        dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
 	done
 	save_config "${configs[@]}"
 }
@@ -203,13 +205,15 @@ pikernel-build_merge_configs() {
 	ebegin "Merging kernel configs"
 	for f in "${targets[@]}"
 	do
-		if [ "${f}" == "bcmrpi3" ]; then
-			KERNEL=kernel8
-			export KERNEL_SUFFIX=-v8
-		else
+        if [ "${f}" == "bcm2711" ]; then
 			KERNEL=kernel8-p4
-			export KERNEL_SUFFIX=-v8-p4
-		fi
+            export KERNEL_SUFFIX=-v8-p4
+        elif [ "${f}" == "bcm2712" ]; then
+            KERNEL=kernel8_2712
+            export KERNEL_SUFFIX=-2712
+        else
+            die "Unkown target ${f}"
+        fi
 
 		[[ -f "${WORKDIR}/${f}/.config" ]] || die "${FUNCNAME}: {$f}/.config does not exist"
 		has .config "${@}" && die "${FUNCNAME}: do not specify .config as parameter"
@@ -230,10 +234,10 @@ pikernel-build_merge_configs() {
 		cd "${WORKDIR}/${f}"
 
 		./source/scripts/kconfig/merge_config.sh -m -r ".config" "${@}" "${user_configs[@]}" || die
-		if [ "${f}" == "bcmrpi3" ]; then
-			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8\"_" .config
+		if [ "${f}" == "bcm2711" ]; then
+            sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
 		else
-			sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-p4\"_" .config
+            sed -i -E "s_CONFIG\_LOCALVERSION=.*\$_CONFIG\_LOCALVERSION=\"-v8-16k\"_" .config
 		fi
 
 	done
