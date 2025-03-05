@@ -154,7 +154,7 @@ pikernel-build_src_install() {
 	cd "${WORKDIR}" || die
 	for n in "${targets[@]}"
 	do
-		ebegin "Installing ${n}"
+        ebegin "Installing ${n}"
         if [ "${n}" == "bcm2711" ]; then
             KERNEL=kernel8-p4
             export KERNEL_SUFFIX=-v8-p4
@@ -164,19 +164,19 @@ pikernel-build_src_install() {
         else
             die "Unkown target ${f}"
         fi
-		insinto "/boot/"
-		doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
-		cp "${n}/arch/arm64/boot/Image" "${n}/arch/arm64/boot/$KERNEL.img"
-		doins "${n}/arch/arm64/boot/$KERNEL.img"
-		insinto "/boot/overlays"
-		doins "${n}"/arch/arm64/boot/dts/overlays/*.dtb*
+        insinto "/boot/"
+        doins "${n}"/arch/arm64/boot/dts/broadcom/*.dtb
+        cp "${n}/arch/arm64/boot/Image" "${n}/arch/arm64/boot/$KERNEL.img"
+        doins "${n}/arch/arm64/boot/$KERNEL.img"
+        insinto "/boot/overlays"
+        doins "${n}"/arch/arm64/boot/dts/overlays/*.dtb*
 
-		insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
-		doins "${targets[0]}"/{System.map,Module.symvers}
+        insinto "/usr/src/linux-${ver}${KERNEL_SUFFIX}"
+        doins "${targets[0]}"/{System.map,Module.symvers}
 
-		# fix source tree and build dir symlinks
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
-		dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
+        # fix source tree and build dir symlinks
+        dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/build
+        dosym ../../../usr/src/linux-${ver} /lib/modules/${ver}${KERNEL_SUFFIX}/source
 	done
 	save_config "${configs[@]}"
 }
