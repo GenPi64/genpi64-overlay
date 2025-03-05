@@ -1,0 +1,14 @@
+Title: Initial experimental Raspberry Pi 5 support and abandoning Raspberry Pi 3
+Author: samip5/kryptonian
+Content-Type: text/plain
+Posted: 2025-03-05
+Revision: 1
+News-Item-Format: 2.0
+
+Initial experimental Raspberry Pi 5 support and abandoning Raspberry Pi 3
+---------------------------------------------------------
+
+We are happy to announce that we are now supporting Raspberry Pi 5, at least in theory. We have not yet tested it, but we are somewhat confident that it will work.
+This means that we will no longer be supporting Raspberry Pi 3 as our limited resources are best spent on the newer hardware.
+
+- Kryptonian
