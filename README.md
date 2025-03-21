@@ -8,39 +8,11 @@ Gentoo overlay (ebuild repository) for the Raspberry Pi 3 Model B and B+, and Ra
 
 ## <a id="list_of_ebuilds"></a>List of ebuilds
 
-The overlay provides the following ebuilds:
-
-
-### Metapackage ebuilds
-### **No Longer Used!**
-Instead of a meta package, select the profile and sets you want.
-* **dev-embedded/rpi-64bit-meta**
-
-  * This is the main `gentoo-on-rpi-64bit` metapackage - its version matches that of the image release. It replaces the prior `gentoo-on-rpi3-64bit` metapackage. The features it pulls in (via other ebuilds) can be customized via the following USE flags (edit via `/etc/portage/package.use/rpi-64bit-meta`):<a name="meta_use_flags"></a>
-   
-     | USE flag | Default? | Effect |
-     | -------- | --------:| ------:|
-     | `boot-fw` | Yes | Pull in the /boot firmware, configs and bootloader. |
-     | `kernel-bin` | Yes | Pull in the `bcm{2711,rpi3}-kernel<-bis>-bin` binary kernel package. |
-     |  `weekly-genup` | Yes | Pull in `cron.weekly` script, to run `genup` automatically. |
-     | `innercore` | Yes | Pull in essential system packages for image (RPi initscripts etc.) |
-     |  `core` | Yes | Pull in main packages for image (`clang` etc.). Requires `innercore`. |
-     |  `xfce` | Yes | Pull in packages for baseline Xfce4 system. Requires `core`. |
-     |  `pitop` | No | Pull in Pi-Top packages (NB most users **won't** want this). Requires `xfce`. |
-     |  `apps` | No | Pull in baseline desktop apps (`libreoffice` etc). Requires `xfce`. |
-
-
 ### Ebuilds related to the [`gentoo-on-rpi-64bit`](https://github.com/GenPi64/gentoo-on-rpi-64bit) image
 
 > Note that for historical reasons, many of these ebuilds may contain `rpi3-` in the name, but yet still be applicable on the RPi4.
 * **app-accessibility/onboard** [upstream](https://launchpad.net/onboard)
   * Provides a flexible onscreen keyboard. Included primarily for use with the official 7" RPi touchscreen. Adapted with thanks from original ebuild, [here](https://bitbucket.org/wjn/wjn-overlay).
-
-* **app-portage/weekly-genup**
-  * Installs a simple cron.weekly script, to automate `genup`, and another, to run 'fixups' (small scripts to correct issues that may e.g. prevent correct `genup` operation, effect upstream file hierarchy migrations etc.).
-
-* **net-misc/rpi3-ethfix**
-  * Effects some simple Ethernet workarounds (using `ethtool`) for the RPi3B+. It has no effect on the RPi3B or RPi4B.
 
 * **net-wireless/rpi3-bluetooth** [upstream](https://aur.archlinux.org/packages/pi-bluetooth/)
   * Provides a startup service and `udev` rule for the RPi3/4's integrated Bluetooth transceiver. Adapted from the [`pi-bluetooth`](https://aur.archlinux.org/packages/pi-bluetooth/) package from ArchLinux.
@@ -91,21 +63,6 @@ Instead of a meta package, select the profile and sets you want.
 
 * **x11-misc/twofing** [upstream](http://plippo.de/p/twofing)
   * Provides the `twofing` daemon, which converts touchscreen gestures into mouse and keyboard events. Included primarily for use with the offical 7" RPi (1,2,3) touchscreen (not sure if this is yet compatible with the RPi4?).
-
-* **xfce-extra/xfce4-battery-plugin**<a id="ptbattery"></a> [upstream](https://github.com/rricharz/pi-top-battery-status)
-  * A modified version of the standard `xfce4-battery-plugin` gas gauge. It is patched with code from rricharz to query the status of the Pi-Top's battery over I2C; this code is activated by building `rpi-64bit-meta`  with the `pitop` USE flag (NB - _only_ for use on Pi-Top systems).
-
-* **xfce-extra/xfce4-cpugraph-plugin** [upstream](https://goodies.xfce.org/projects/panel-plugins/xfce4-cpugraph-plugin)
-  * Provides a version of this plugin that periodically completely redraws, as the original is subject to occasional display corruption.
-
-* **xfce-extra/xfce4-fixups-rpi3**
-  * Effects some useful new-user fixups for Xfce4 on the RPi3 and RPi4 (forcing compositing to sync to the vertical blank etc.). Installs an `/etc/xdg/autostart/xfce4-fixups-rpi3.desktop` entry.
-
-* **xfce-extra/xfce4-keycuts-pitop**<a id="ptkeycuts"></a>
-  * Installs some simple keyboard shortcuts for the Pi-Top (an RPi3-based DIY laptop). Only installed on the image when the `pitop` USE flag is set on `rpi-64bit-meta`.
-
-* **xfce-extra/xfce4-noblank**
-  * Provides an `/etc/xdg/autostart` script to prevent the `xscreensaver` blanking the screen, even when it is notionally 'off'.
 
 ## Other directories of interest
 
