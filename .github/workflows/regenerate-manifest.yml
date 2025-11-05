@@ -20,10 +20,31 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
+      - name: Cache Gentoo packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/db/repos/gentoo
+            /var/cache/binpkgs
+          key: gentoo-${{ runner.os }}-${{ hashFiles('**/package.*') }}
+          restore-keys: |
+            gentoo-${{ runner.os }}-
+
       - name: Configure Gentoo environment
         run: |
+          # Disable sandbox features that don't work in Docker
+          cat >> /etc/portage/make.conf <<EOF
+          FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"
+          FEATURES="\${FEATURES} buildpkg"
+          EMERGE_DEFAULT_OPTS="--usepkg --binpkg-respect-use=y"
+          EOF
+
           # Sync portage tree (minimal sync)
-          emerge-webrsync || emerge --sync
+          if [ ! -d "/var/db/repos/gentoo/profiles" ]; then
+            emerge-webrsync || emerge --sync
+          else
+            echo "Portage tree already synced (from cache)"
+          fi
 
           # Install dev-util/pkgdev for manifest generation
           emerge dev-util/pkgdev
