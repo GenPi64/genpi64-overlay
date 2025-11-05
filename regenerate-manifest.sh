@@ -36,8 +36,8 @@ for EBUILD in $MODIFIED_EBUILDS; do
     # Get the directory containing the ebuild
     EBUILD_DIR=$(dirname "$EBUILD")
 
-    # Run ebuild manifest
-    if ebuild "$EBUILD" manifest; then
+    # Run pkgdev manifest
+    if (cd "$EBUILD_DIR" && pkgdev manifest); then
         echo "✓ Manifest generated for $EBUILD"
     else
         echo "✗ Failed to generate manifest for $EBUILD"
