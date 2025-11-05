@@ -62,7 +62,7 @@ jobs:
           export PORTDIR_OVERLAY="${GITHUB_WORKSPACE}"
 
           # Process each modified ebuild
-          echo "${{ steps.find-changed.outputs.files }}" | tr ' ' '\n' | while read -r EBUILD; do
+          echo "${{ steps.find-changed.outputs.changed_files }}" | tr ' ' '\n' | while read -r EBUILD; do
             if [ -z "$EBUILD" ]; then
               continue
             fi
@@ -100,7 +100,7 @@ jobs:
           fi
 
       - name: Commit and push manifest changes
-        if: steps.check-changes.outputs.changed_files
+        if: steps.check-changes.outputs.manifests_changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
