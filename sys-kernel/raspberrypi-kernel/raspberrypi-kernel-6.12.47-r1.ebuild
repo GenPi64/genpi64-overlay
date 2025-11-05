@@ -1,17 +1,17 @@
-# Copyright 2020-2023 Gentoo Authors
+# Copyright 2020-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# Largely derived from gentoo-kernel-6.6.31.ebuild
+# Largely derived from gentoo-kernel-6.12.47.ebuild
 
 EAPI=8
 
 inherit pikernel-build
 
-MY_P=linux-stable_20240529
-GENPATCHES_P=genpatches-6.5-38
+MY_P=linux-stable_20250916
+GENPATCHES_P=genpatches-6.12-62
 # https://koji.fedoraproject.org/koji/packageinfo?packageID=8
 # forked to https://github.com/projg2/fedora-kernel-config-for-gentoo
-CONFIG_VER=6.6.12-gentoo
-GENTOO_CONFIG_VER=g13
+CONFIG_VER=6.12.41-gentoo
+GENTOO_CONFIG_VER=g17
 
 DESCRIPTION="Raspberry Pi Foundation Linux kernel built with Gentoo patches"
 HOMEPAGE="
@@ -20,7 +20,7 @@ HOMEPAGE="
 	https://github.com/raspberrypi/linux
 "
 SRC_URI+="
-	https://github.com/raspberrypi/linux/archive/refs/tags/stable_20240529.tar.gz
+	https://github.com/raspberrypi/linux/archive/refs/tags/stable_20250916.tar.gz -> rpi-kernel-stable_20250916.tar.gz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.base.tar.xz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.extras.tar.xz
 	https://github.com/projg2/gentoo-kernel-config/archive/${GENTOO_CONFIG_VER}.tar.gz
@@ -32,14 +32,6 @@ SRC_URI+="
 	arm64? (
 		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-aarch64-fedora.config
 			-> kernel-aarch64-fedora.config.${CONFIG_VER}
-	)
-	ppc64? (
-		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-ppc64le-fedora.config
-			-> kernel-ppc64le-fedora.config.${CONFIG_VER}
-	)
-	x86? (
-		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-i686-fedora.config
-			-> kernel-i686-fedora.config.${CONFIG_VER}
 	)
 "
 S=${WORKDIR}/${MY_P}
@@ -107,4 +99,3 @@ src_prepare() {
 pkg_preinst() {
 	debug-print-function ${FUNCNAME} "${@}"
 }
-

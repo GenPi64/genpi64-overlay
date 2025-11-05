@@ -46,33 +46,43 @@ echo "  Genpatches version: ${GENPATCHES_VERSION}"
 
 # Fetch latest gentoo-kernel-config version
 echo "Fetching latest gentoo-kernel-config version..."
-GENTOO_CONFIG_VERSION=$(curl -s https://api.github.com/repos/projg2/gentoo-kernel-config/tags | grep -o '"name": "g[0-9]*"' | head -1 | grep -o 'g[0-9]*')
+GENTOO_CONFIG_VERSION=$(curl -s https://api.github.com/repos/projg2/gentoo-kernel-config/tags | grep -o '"name": "g[0-9]*"' | head -1 | grep -o 'g[0-9]*' || echo "")
 if [ -z "$GENTOO_CONFIG_VERSION" ]; then
-    GENTOO_CONFIG_VERSION="g13"
-    echo "  Warning: Could not fetch, using default: ${GENTOO_CONFIG_VERSION}"
+    GENTOO_CONFIG_VERSION="g17" # A known good fallback
+    echo "  Warning: Could not fetch, using fallback: ${GENTOO_CONFIG_VERSION}"
 else
     echo "  Gentoo config version: ${GENTOO_CONFIG_VERSION}"
 fi
 
 # Fetch latest fedora-kernel-config version for the kernel series
 echo "Fetching latest fedora-kernel-config version..."
-ALL_TAGS=$(curl -s https://api.github.com/repos/projg2/fedora-kernel-config-for-gentoo/tags | grep -o '"name": "[^"]*"' | cut -d'"' -f4)
+ALL_TAGS=$(curl -s https://api.github.com/repos/projg2/fedora-kernel-config-for-gentoo/tags | grep -o '"name": "[^"]*"' | cut -d'"' -f4 | grep -- "-gentoo$" | sort -V)
 
 # Try exact kernel series match (e.g., 6.6.x-gentoo)
-CONFIG_VERSION=$(echo "$ALL_TAGS" | grep "^${KERNEL_MAJOR_MINOR}\." | grep -- "-gentoo$" | sort -V | tail -1)
+CONFIG_VERSION=$(echo "$ALL_TAGS" | grep "^${KERNEL_MAJOR_MINOR}\." | tail -1)
 
+# If no exact match, find the latest version that is not newer than the current kernel
 if [ -z "$CONFIG_VERSION" ]; then
-    echo "  No exact match for ${KERNEL_MAJOR_MINOR}, trying closest version..."
-    # Find any version from the same major series
-    CONFIG_VERSION=$(echo "$ALL_TAGS" | grep "^${KERNEL_MAJOR}\." | grep -- "-gentoo$" | sort -V | tail -1)
+    echo "  No exact match for ${KERNEL_MAJOR_MINOR}, finding latest version older than ${KERNEL_VERSION}..."
+    # Filter tags that are less than or equal to the current kernel version and take the latest one
+    CONFIG_VERSION=$(echo "$ALL_TAGS" | awk -v ver="${KERNEL_VERSION}" '{ if ($1 <= ver) print $1 }' | tail -1)
 fi
 
 if [ -z "$CONFIG_VERSION" ]; then
-    CONFIG_VERSION="${KERNEL_MAJOR_MINOR}.12-gentoo"
-    echo "  Warning: Could not fetch, using estimated: ${CONFIG_VERSION}"
+    echo "Error: Could not determine a valid fedora-kernel-config version."
+    exit 1
 else
-    echo "  Config version: ${CONFIG_VERSION}"
+    echo "  Found potential config version: ${CONFIG_VERSION}"
 fi
+
+# Verify the found config version actually exists
+FEDORA_CONFIG_URL="https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VERSION}/kernel-x86_64-fedora.config"
+echo "  Verifying URL: ${FEDORA_CONFIG_URL}"
+if ! curl -s --head --fail "${FEDORA_CONFIG_URL}" > /dev/null; then
+    echo "Error: Fedora config version ${CONFIG_VERSION} does not exist at expected URL."
+    exit 1
+fi
+echo "  Config version is valid: ${CONFIG_VERSION}"
 
 # Determine revision number
 REVISION=1
@@ -116,7 +126,7 @@ HOMEPAGE="
 	https://github.com/raspberrypi/linux
 "
 SRC_URI+="
-	https://github.com/raspberrypi/linux/archive/refs/tags/stable_${STABLE_DATE}.tar.gz
+	https://github.com/raspberrypi/linux/archive/refs/tags/stable_${STABLE_DATE}.tar.gz -> rpi-$(MY_P).tar.gz
 	https://dev.gentoo.org/~alicef/dist/genpatches/\${GENPATCHES_P}.base.tar.xz
 	https://dev.gentoo.org/~alicef/dist/genpatches/\${GENPATCHES_P}.extras.tar.xz
 	https://github.com/projg2/gentoo-kernel-config/archive/\${GENTOO_CONFIG_VER}.tar.gz

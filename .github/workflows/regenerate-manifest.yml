@@ -7,53 +7,79 @@ on:
   workflow_dispatch:
 
 jobs:
-  regenerate-manifests:
+  regenerate:
     runs-on: ubuntu-latest
     container:
       image: gentoo/stage3:latest
+      options: --privileged
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Cache Gentoo packages
+        uses: actions/cache@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          path: |
+            /var/db/repos/gentoo
+            /var/cache/binpkgs
+          key: gentoo-${{ runner.os }}
+          restore-keys: |
+            gentoo-${{ runner.os }}
 
       - name: Configure Gentoo environment
         run: |
+          # Disable sandbox features that don't work in Docker
+          cat >> /etc/portage/make.conf <<EOF
+          FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"
+          FEATURES="\${FEATURES} buildpkg"
+          EMERGE_DEFAULT_OPTS="--usepkg --binpkg-respect-use=y"
+          EOF
+
           # Sync portage tree (minimal sync)
-          emerge-webrsync || emerge --sync
+          if [ ! -d "/var/db/repos/gentoo/profiles" ]; then
+            emerge-webrsync || emerge --sync
+          else
+            echo "Portage tree already synced (from cache)"
+          fi
 
           # Install dev-util/pkgdev for manifest generation
           emerge dev-util/pkgdev
 
-      - name: Find modified ebuilds
-        id: find-ebuilds
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Verify repository is in container
         run: |
-          # Find modified and new ebuild files
-          MODIFIED_EBUILDS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '\.ebuild$' || true)
+          echo "Running in directory: $(pwd)"
+          echo "Workspace contents:"
+          ls -lA
 
-          if [ -z "$MODIFIED_EBUILDS" ]; then
-            echo "No modified ebuild files found."
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
+      - name: Configure Git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Find modified files
+        uses: bjw-s-labs/action-changed-files@v0.4.1
+        id: find-changed
+        with:
+          patterns: '**/*.ebuild'
 
-          echo "Modified ebuilds:"
-          echo "$MODIFIED_EBUILDS"
-          echo "has_changes=true" >> $GITHUB_OUTPUT
-          echo "ebuilds<<EOF" >> $GITHUB_OUTPUT
-          echo "$MODIFIED_EBUILDS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Fix distfiles permissions
+        run: |
+          mkdir -p /var/cache/distfiles
+          chown portage:portage /var/cache/distfiles
+          chmod 775 /var/cache/distfiles
 
       - name: Regenerate manifests
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
+        if: steps.find-changed.outputs.changed_files
         run: |
-          # Set the repository location
           export PORTDIR_OVERLAY="${GITHUB_WORKSPACE}"
 
-          echo "${{ steps.find-ebuilds.outputs.ebuilds }}" | while read -r EBUILD; do
+          # Process each modified ebuild
+          echo "${{ steps.find-changed.outputs.changed_files }}" | tr ' ' '\n' | while read -r EBUILD; do
+            EBUILD=$(echo "$EBUILD" | tr -d "[]'")
             if [ -z "$EBUILD" ]; then
               continue
             fi
@@ -77,49 +103,18 @@ jobs:
             echo "✓ Manifest generated for $EBUILD"
           done
 
-      - name: Check for manifest changes
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
-        id: check-changes
-        run: |
-          if git diff --quiet '**/Manifest'; then
-            echo "No manifest changes detected."
-            echo "manifests_changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "Manifest changes detected:"
-            git diff --name-only '**/Manifest'
-            echo "manifests_changed=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Commit and push manifest changes
-        if: steps.check-changes.outputs.manifests_changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Add all Manifest files
-          git add '**/Manifest'
-
-          # Commit
-          git commit -m "chore: regenerate manifests
-             
-            🤖 Generated with GitHub Actions"
-
-          # Push to the PR branch
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.find-changed.outputs.changed_files
+        uses: EndBug/add-and-commit@v9.1.4
+        with:
+          message: "Regenerate manifests for modified ebuilds"
+          add: '**/Manifest'
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          push: true
 
       - name: Summary
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
+        if: steps.find-changed.outputs.changed_files
         run: |
           echo "## Manifest Regeneration Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "${{ steps.check-changes.outputs.manifests_changed }}" == "true" ]; then
-            echo "✅ Manifests were regenerated and committed to the PR" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Modified Manifests:" >> $GITHUB_STEP_SUMMARY
-            git diff HEAD~1 --name-only '**/Manifest' | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ No manifest changes were needed" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "✅ Manifests regenerated for modified ebuilds" >> $GITHUB_STEP_SUMMARY
