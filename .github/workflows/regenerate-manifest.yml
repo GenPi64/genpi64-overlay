@@ -86,21 +86,8 @@ jobs:
             echo "✓ Manifest generated for $EBUILD"
           done
 
-      - name: Check for manifest changes
-        if: steps.find-changed.outputs.changed_files
-        id: check-changes
-        run: |
-          if git diff --quiet '**/Manifest'; then
-            echo "No manifest changes detected."
-            echo "manifests_changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "Manifest changes detected:"
-            git diff --name-only '**/Manifest'
-            echo "manifests_changed=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Commit and push manifest changes
-        if: steps.check-changes.outputs.manifests_changed
+        if: steps.find-changed.outputs.changed_files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -108,13 +95,14 @@ jobs:
           # Add all Manifest files
           git add '**/Manifest'
 
-          # Commit
-          git commit -m "chore: regenerate manifests
-             
-            🤖 Generated with GitHub Actions"
-
-          # Push to the PR branch
-          git push
+          # Commit and push if there are changes
+          if git diff --cached --quiet; then
+            echo "No manifest changes to commit"
+          else
+            git commit -m "chore: regenerate manifests"
+            git push
+            echo "Manifests committed and pushed"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -122,13 +110,4 @@ jobs:
         if: steps.find-changed.outputs.changed_files
         run: |
           echo "## Manifest Regeneration Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "${{ steps.check-changes.outputs.manifests_changed }}" == "true" ]; then
-            echo "✅ Manifests were regenerated and committed to the PR" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Modified Manifests:" >> $GITHUB_STEP_SUMMARY
-            git diff HEAD~1 --name-only '**/Manifest' | sed 's/^/- /' >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ No manifest changes were needed" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "✅ Manifests regenerated for modified ebuilds" >> $GITHUB_STEP_SUMMARY
