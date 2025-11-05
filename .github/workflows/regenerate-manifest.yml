@@ -56,10 +56,9 @@ jobs:
 
       - name: Configure Git
         run: |
-          pwd
-          ls -alh .git
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - name: Find modified files
         uses: bjw-s-labs/action-changed-files@v0.4.1
         id: find-changed
@@ -70,9 +69,6 @@ jobs:
         if: steps.find-changed.outputs.changed_files
         run: |
           export PORTDIR_OVERLAY="${GITHUB_WORKSPACE}"
-          # Set the repository location
-          export PORTDIR_OVERLAY="${{ github.workspace }}
-          
 
           # Process each modified ebuild
           echo "${{ steps.find-changed.outputs.changed_files }}" | tr ' ' '\n' | while read -r EBUILD; do
@@ -101,21 +97,13 @@ jobs:
 
       - name: Commit and push manifest changes
         if: steps.find-changed.outputs.changed_files
-        working-directory: ${{ github.workspace }}
-        run: |
-          # Add all Manifest files
-          git add '**/Manifest'
-
-          # Commit and push if there are changes
-          if git diff --cached --quiet; then
-            echo "No manifest changes to commit"
-            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}" HEAD:${{ github.event.pull_request.head.ref }}
-            git commit -m "chore: regenerate manifests"
-            git push
-            echo "Manifests committed and pushed"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: EndBug/add-and-commit@v9.1.4
+        with:
+          message: "Regenerate manifests for modified ebuilds"
+          add: '**/Manifest'
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          push: true
 
       - name: Summary
         if: steps.find-changed.outputs.changed_files
