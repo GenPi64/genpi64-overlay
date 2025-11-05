@@ -49,6 +49,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
+      - name: Configure Git
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Find modified files
         uses: bjw-s-labs/action-changed-files@v0.4.1
         id: find-changed
@@ -88,10 +94,8 @@ jobs:
 
       - name: Commit and push manifest changes
         if: steps.find-changed.outputs.changed_files
+        working-directory: ${{ github.workspace }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
           # Add all Manifest files
           git add '**/Manifest'
 
