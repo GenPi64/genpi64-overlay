@@ -22,7 +22,11 @@
 inherit kernel-build
 
 IUSE="+bcm2711 +bcm2712 -initramfs"
-REQUIRED_USE="|| ( bcm2711 bcm2712)"
+if [[ ${EAPI} == 8 ]]; then
+	REQUIRED_USE+=" || ( bcm2711 bcm2712 )"
+else
+	REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
+fi
 
 SLOT="0"
 
