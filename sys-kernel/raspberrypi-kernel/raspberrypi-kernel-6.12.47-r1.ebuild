@@ -7,7 +7,7 @@ EAPI=8
 inherit pikernel-build
 
 MY_P=linux-stable_20250916
-GENPATCHES_P=genpatches-6.12-50
+GENPATCHES_P=genpatches-6.12-62
 # https://koji.fedoraproject.org/koji/packageinfo?packageID=8
 # forked to https://github.com/projg2/fedora-kernel-config-for-gentoo
 CONFIG_VER=6.12.41-gentoo
@@ -32,14 +32,6 @@ SRC_URI+="
 	arm64? (
 		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-aarch64-fedora.config
 			-> kernel-aarch64-fedora.config.${CONFIG_VER}
-	)
-	ppc64? (
-		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-ppc64le-fedora.config
-			-> kernel-ppc64le-fedora.config.${CONFIG_VER}
-	)
-	x86? (
-		https://raw.githubusercontent.com/projg2/fedora-kernel-config-for-gentoo/${CONFIG_VER}/kernel-i686-fedora.config
-			-> kernel-i686-fedora.config.${CONFIG_VER}
 	)
 "
 S=${WORKDIR}/${MY_P}
