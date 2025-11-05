@@ -46,7 +46,7 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="GPL-2"
 KEYWORDS="~arm ~arm64"
-IUSE="debug hardened"
+IUSE="debug hardened bcm2711 bcm2712"
 REQUIRED_USE="
 	arm? ( savedconfig )
 	hppa? ( savedconfig )
