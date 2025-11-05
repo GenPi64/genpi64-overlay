@@ -66,6 +66,12 @@ jobs:
         with:
           patterns: '**/*.ebuild'
 
+      - name: Fix distfiles permissions
+        run: |
+          mkdir -p /var/cache/distfiles
+          chown portage:portage /var/cache/distfiles
+          chmod 775 /var/cache/distfiles
+
       - name: Regenerate manifests
         if: steps.find-changed.outputs.changed_files
         run: |
