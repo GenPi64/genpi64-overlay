@@ -49,40 +49,20 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
-      - name: debug
-        run: |
-          ls -al $GITHUB_WORKSPACE
-          pwd
-          
-
-      - name: Find modified ebuilds
-        id: find-ebuilds
-        run: |
-          cd $GITHUB_WORKSPACE
-
-          # Find modified and new ebuild files
-          MODIFIED_EBUILDS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep '\.ebuild$' || true)
-
-          if [ -z "$MODIFIED_EBUILDS" ]; then
-            echo "No modified ebuild files found."
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Modified ebuilds:"
-          echo "$MODIFIED_EBUILDS"
-          echo "has_changes=true" >> $GITHUB_OUTPUT
-          echo "ebuilds<<EOF" >> $GITHUB_OUTPUT
-          echo "$MODIFIED_EBUILDS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Find modified files
+        uses: bjw-s-labs/action-changed-files@v0.4.1
+        id: find-changed
+        with:
+          patterns: '**/*.ebuild'
 
       - name: Regenerate manifests
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
+        if: steps.find-changed.outputs.changed_files
         run: |
           # Set the repository location
           export PORTDIR_OVERLAY="${GITHUB_WORKSPACE}"
 
-          echo "${{ steps.find-ebuilds.outputs.ebuilds }}" | while read -r EBUILD; do
+          # Process each modified ebuild
+          echo "${{ steps.find-changed.outputs.files }}" | tr ' ' '\n' | while read -r EBUILD; do
             if [ -z "$EBUILD" ]; then
               continue
             fi
@@ -107,7 +87,7 @@ jobs:
           done
 
       - name: Check for manifest changes
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
+        if: steps.find-changed.outputs.changed_files
         id: check-changes
         run: |
           if git diff --quiet '**/Manifest'; then
@@ -120,7 +100,7 @@ jobs:
           fi
 
       - name: Commit and push manifest changes
-        if: steps.check-changes.outputs.manifests_changed == 'true'
+        if: steps.check-changes.outputs.changed_files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -139,7 +119,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
-        if: steps.find-ebuilds.outputs.has_changes == 'true'
+        if: steps.find-changed.outputs.changed_files
         run: |
           echo "## Manifest Regeneration Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
