@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  regenerate-manifests:
+  regenerate:
     runs-on: ubuntu-latest
     container:
       image: gentoo/stage3:latest
@@ -48,13 +48,18 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
+      - name: Verify repository is in container
+        run: |
+          echo "Running in directory: $(pwd)"
+          echo "Workspace contents:"
+          ls -lA
+
       - name: Configure Git
-        working-directory: ${{ github.workspace }}
         run: |
           pwd
+          ls -alh .git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Find modified files
         uses: bjw-s-labs/action-changed-files@v0.4.1
         id: find-changed
@@ -64,8 +69,10 @@ jobs:
       - name: Regenerate manifests
         if: steps.find-changed.outputs.changed_files
         run: |
+          export PORTDIR_OVERLAY="${GITHUB_WORKSPACE}"
           # Set the repository location
-          export PORTDIR_OVERLAY="${{ github.workspace }}"
+          export PORTDIR_OVERLAY="${{ github.workspace }}
+          
 
           # Process each modified ebuild
           echo "${{ steps.find-changed.outputs.changed_files }}" | tr ' ' '\n' | while read -r EBUILD; do
@@ -102,7 +109,7 @@ jobs:
           # Commit and push if there are changes
           if git diff --cached --quiet; then
             echo "No manifest changes to commit"
-          else
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}" HEAD:${{ github.event.pull_request.head.ref }}
             git commit -m "chore: regenerate manifests"
             git push
             echo "Manifests committed and pushed"
