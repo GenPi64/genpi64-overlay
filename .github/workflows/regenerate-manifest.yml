@@ -19,9 +19,9 @@ jobs:
           path: |
             /var/db/repos/gentoo
             /var/cache/binpkgs
-          key: gentoo-${{ runner.os }}-${{ hashFiles('**/package.*') }}
+          key: gentoo-${{ runner.os }}
           restore-keys: |
-            gentoo-${{ runner.os }}-
+            gentoo-${{ runner.os }}
 
       - name: Configure Gentoo environment
         run: |
