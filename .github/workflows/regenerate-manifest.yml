@@ -25,8 +25,8 @@ jobs:
           # Sync portage tree (minimal sync)
           emerge-webrsync || emerge --sync
 
-          # Install app-portage/repoman for manifest generation
-          emerge --quiet app-portage/repoman
+          # Install dev-util/pkgdev for manifest generation
+          emerge dev-util/pkgdev
 
       - name: Find modified ebuilds
         id: find-ebuilds
@@ -65,11 +65,14 @@ jobs:
               continue
             fi
 
-            # Generate manifest
-            ebuild "$EBUILD" manifest || {
+            # Get the package directory and generate manifest using pkgdev
+            EBUILD_DIR=$(dirname "$EBUILD")
+            cd "$EBUILD_DIR"
+            pkgdev manifest || {
               echo "Error: Failed to generate manifest for $EBUILD"
               exit 1
             }
+            cd "$GITHUB_WORKSPACE"
 
             echo "✓ Manifest generated for $EBUILD"
           done
