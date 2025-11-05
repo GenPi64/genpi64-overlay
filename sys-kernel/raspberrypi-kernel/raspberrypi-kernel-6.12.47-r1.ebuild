@@ -20,7 +20,7 @@ HOMEPAGE="
 	https://github.com/raspberrypi/linux
 "
 SRC_URI+="
-	https://github.com/raspberrypi/linux/archive/refs/tags/stable_20250916.tar.gz -> rpi-kernel-$(MY_P).tar.gz
+	https://github.com/raspberrypi/linux/archive/refs/tags/stable_20250916.tar.gz -> rpi-kernel-stable_20250916.tar.gz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.base.tar.xz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.extras.tar.xz
 	https://github.com/projg2/gentoo-kernel-config/archive/${GENTOO_CONFIG_VER}.tar.gz
