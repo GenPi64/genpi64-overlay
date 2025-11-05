@@ -88,7 +88,7 @@ jobs:
             # Get the package directory and generate manifest using pkgdev
             EBUILD_DIR=$(dirname "$EBUILD")
             cd "$EBUILD_DIR"
-            sudo pkgdev manifest || {
+            pkgdev manifest || {
               echo "Error: Failed to generate manifest for $EBUILD"
               exit 1
             }
