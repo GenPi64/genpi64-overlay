@@ -13,14 +13,6 @@ jobs:
       image: gentoo/stage3:latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-
-
       - name: Cache Gentoo packages
         uses: actions/cache@v4
         with:
@@ -49,6 +41,19 @@ jobs:
 
           # Install dev-util/pkgdev for manifest generation
           emerge dev-util/pkgdev
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: debug
+        run: |
+          ls -al $GITHUB_WORKSPACE
+          pwd
+          
 
       - name: Find modified ebuilds
         id: find-ebuilds
