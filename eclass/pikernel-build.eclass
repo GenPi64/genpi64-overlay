@@ -21,11 +21,18 @@
 
 inherit kernel-build
 
-IUSE="+bcm2711 +bcm2712 -initramfs"
-if [[ ${EAPI} == 8 ]]; then
-	REQUIRED_USE+=" || ( bcm2711 bcm2712 )"
+# Conditionally set IUSE based on kernel version
+# bcm2712 only available for kernel 6.12+
+if ver_test "${PV}" -ge 6.12.0; then
+    IUSE="+bcm2711 +bcm2712 -initramfs"
+    if [[ ${EAPI} == 8 ]]; then
+        REQUIRED_USE+=" || ( bcm2711 bcm2712 )"
+    else
+        REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
+    fi
 else
-	REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
+    IUSE="+bcm2711 -initramfs"
+    REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
 fi
 
 SLOT="0"

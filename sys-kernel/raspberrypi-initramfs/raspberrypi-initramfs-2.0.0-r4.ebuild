@@ -1,7 +1,7 @@
-# Copyright 2021 Gentoo Authors
+# Copyright 2021-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="Assembles a simple initramfs, suitable for use on Raspberry Pi 3 and Raspberry Pi 4 SBCs.  Contains busybox shell, micropython, /sbin/init written in micropython, and basic filesystem utilities.  Additional files can be specified via /etc/kernel/initramfs.d/*.conf."
 HOMEPAGE="https://github.com/GenPi64/PiInitramfs"
@@ -72,13 +72,13 @@ src_compile() {
 	cp /lib64/libc.so.6 lib || die
 	cp /lib64/libm.so.6 lib || die
 	cp /lib64/libdl.so.2 lib || die
-	cp /usr/lib64/libffi.so.7 lib || die
+	cp /usr/lib64/libffi.so.8 lib || die
 	cp /lib64/libuuid.so.1 lib || die
 	cp /lib64/libblkid.so.1 lib || die
 	cp /lib64/libmount.so.1 lib || die
 	cp /lib64/libz.so.1 lib || die
 	cp /lib64/liblzo2.so.2 lib || die
-	cp /usr/lib64/libzstd.so.1 lib || die
+	cp /usr/lib64/libzstd.so lib || die
 	cp /lib64/libpthread.so.0 lib || die
 	cp /lib64/libpcre.so.1 lib || die
 
