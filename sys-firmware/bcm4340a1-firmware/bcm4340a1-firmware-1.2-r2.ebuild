@@ -1,4 +1,4 @@
-EAPI=8
+EAPI="8"
 inherit git-r3
 
 KEYWORDS="arm arm64"
