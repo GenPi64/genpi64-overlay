@@ -24,14 +24,14 @@ inherit kernel-build
 # Conditionally set IUSE based on kernel version
 # bcm2712 only available for kernel 6.12+
 if ver_test "${PV}" -ge 6.12.0; then
-    IUSE="+bcm2711 +bcm2712 -initramfs"
+    IUSE="bcm2711 bcm2712 initramfs"
     if [[ ${EAPI} == 8 ]]; then
         REQUIRED_USE+=" || ( bcm2711 bcm2712 )"
     else
         REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
     fi
 else
-    IUSE="+bcm2711 -initramfs"
+    IUSE="bcm2711 initramfs"
     REQUIRED_USE+=" bcm2711? ( bcm2711 ) bcm2712? ( bcm2712 )"
 fi
 
@@ -75,6 +75,18 @@ pikernel-build_src_configure() {
 		ebegin "Selecting Kernel Config"
 	done
 	pikernel-build_merge_configs "${merge_configs[@]}"
+}
+
+# @FUNCTION: pikernel-build_pkg_setup
+# @DESCRIPTION:
+# Check if bcm2712 support is enabled and warn if not.
+pikernel-build_pkg_setup() {
+    if ver_test "${PV}" -lt 6.12.0; then
+        if has bcm2712 ${USE}; then
+            ewarn "bcm2712 support requires kernel >= 6.12.0"
+            ewarn "Building for bcm2711 only for kernel ${PV}"
+        fi
+    fi
 }
 
 # Almost the same as kernel-build_src_configure
@@ -254,4 +266,4 @@ pikernel-build_merge_configs() {
 	done
 }
 
-EXPORT_FUNCTIONS src_configure src_compile src_install pkg_postinst
+EXPORT_FUNCTIONS src_configure src_compile src_install pkg_setup pkg_preinst pkg_postinst

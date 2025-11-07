@@ -1,0 +1,4 @@
+# Allow specific testing versions of the raspberrypi-kernel
+# The 6.12 version has Pi5 support in testing.
+~sys-kernel/raspberrypi-kernel-6.1.63 ~arm64
+~sys-kernel/raspberrypi-kernel-6.12.47 ~arm64

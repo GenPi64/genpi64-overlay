@@ -9,9 +9,8 @@ SRC_URI=""
 
 LICENSE=""
 SLOT="0/${PV}"
-KEYWORDS="~arm ~arm64"
+KEYWORDS="~arm arm64"
 
 RDEPEND="
-	|| (
-		~sys-kernel/raspberrypi-kernel-${PV}
-	)"
+    ~sys-kernel/raspberrypi-kernel-${PV}
+"
