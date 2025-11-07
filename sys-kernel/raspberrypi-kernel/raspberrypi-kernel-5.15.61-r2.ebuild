@@ -41,7 +41,7 @@ S=${WORKDIR}/${MY_P}
 
 LICENSE="GPL-2"
 KEYWORDS="~arm arm64"
-IUSE=" debug "
+IUSE=" debug hardened bcm2711 -bcm2712"
 
 RDEPEND="
 	!sys-kernel/gentoo-kernel:${SLOT}

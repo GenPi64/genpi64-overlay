@@ -6,7 +6,7 @@ EAPI=8
 
 inherit pikernel-build
 
-MY_P=linux-stable_20231024
+MY_P=linux-1.20230405
 GENPATCHES_P=genpatches-6.1-25
 # https://koji.fedoraproject.org/koji/packageinfo?packageID=8
 # forked to https://github.com/projg2/fedora-kernel-config-for-gentoo
@@ -20,7 +20,7 @@ HOMEPAGE="
 	https://github.com/raspberrypi/linux
 "
 SRC_URI+="
-	https://github.com/raspberrypi/linux/archive/refs/tags/stable_20231024.tar.gz
+	https://github.com/raspberrypi/linux/archive/refs/tags/1.20230405.tar.gz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.base.tar.xz
 	https://dev.gentoo.org/~alicef/dist/genpatches/${GENPATCHES_P}.extras.tar.xz
 	https://github.com/projg2/gentoo-kernel-config/archive/${GENTOO_CONFIG_VER}.tar.gz
@@ -45,8 +45,8 @@ SRC_URI+="
 S=${WORKDIR}/${MY_P}
 
 LICENSE="GPL-2"
-KEYWORDS="~arm ~arm64"
-IUSE="debug hardened"
+KEYWORDS="~arm arm64"
+IUSE="debug hardened bcm2711 -bcm2712"
 REQUIRED_USE="
 	arm? ( savedconfig )
 	hppa? ( savedconfig )
