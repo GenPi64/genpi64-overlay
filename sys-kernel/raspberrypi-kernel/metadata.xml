@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+    <maintainer type="project">
+        <name>GenPi64 Team</name>
+    </maintainer>
+    <longdescription>
+        Raspberry Pi Foundation Linux kernel built with Gentoo patches
+    </longdescription>
+    <use>
+        <flag name="bcm2711">Build kernel for BCM2711 SoC (Raspberry Pi 4, Pi 400, CM4)</flag>
+        <flag name="bcm2712">Build kernel for BCM2712 SoC (Raspberry Pi 5, CM5) - requires kernel 6.12+</flag>
+        <flag name="initramfs">Build and install an initramfs</flag>
+        <flag name="debug">Enable kernel debugging features and symbols</flag>
+    </use>
+</pkgmetadata>

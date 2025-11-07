@@ -2,16 +2,16 @@
 # License: GPL v2 or GPL v3+
 # NO WARRANTY
 
-EAPI=5
+EAPI=8
 
-KEYWORDS="~arm64"
+KEYWORDS="~arm arm64"
 
 DESCRIPTION="Misc init scripts for the gentoo-on-rpi3-64bit image"
 HOMEPAGE="https://github.com/GenPi64/gentoo-on-rpi3-64bit"
 SRC_URI=""
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="-systemd +X"
+IUSE="-systemd"
 RESTRICT="mirror"
 AR_SVCNAME="autoexpand-root"
 
@@ -20,16 +20,13 @@ S="${WORKDIR}"
 
 DEPEND=""
 RDEPEND="${DEPEND}
-	X? ( >=x11-apps/xdm-1.1.11-r3 )
-	systemd?  ( >=sys-apps/systemd-242-r6 )
-	!systemd? ( >=sys-apps/openrc-0.41 )
-	>=app-shells/bash-4.0"
+	>=sys-apps/rpi-onetime-startup-1.0-r5
+	systemd?  ( >=sys-apps/systemd-249.7 )
+	!systemd? ( >=sys-apps/openrc-0.44.10 )
+	>=app-shells/bash-5.1_p8"
 
 src_install() {
-	newinitd "${FILESDIR}/init.d_autoexpand_root-4" "${AR_SVCNAME}"
-	insinto "/usr/share/X11/xorg.conf.d"
-	newins "${FILESDIR}/50-disable-Xv.conf-1" "50-disable-Xv.conf"
-	newins "${FILESDIR}/50-hostname-mode-none.conf-1" "50-hostname-mode-none.conf"
+	newinitd "${FILESDIR}/init.d_autoexpand_root-5" "${AR_SVCNAME}"
 	insinto "/etc/sysctl.d"
 	newins "${FILESDIR}/35-low-memory-cache-settings.conf-1" "35-low-memory-cache-settings.conf"
 }
@@ -38,11 +35,8 @@ pkg_postinst() {
 	if [[ -z ${REPLACING_VERSIONS} ]]; then
 		rc-update add "${AR_SVCNAME}" boot
 		elog "The first-boot root partition resizing service has been activated."
-		elog "To have it run (which also force-sets the root and demouser"
-		elog "passwords, and starts an Xfce session for demouser), create (touch)"
-		elog "the sentinel file /boot/autoexpand_root_partition."
-		elog "To do the same (but skipping the autoexpand step) create"
-		elog "(touch) the file /boot/autoexpand_root_none instead."
+		elog "This service will run so long as the sentinel file /boot/dont_autoexpand_root"
+		elog "Does not exist."
 		elog "To disable entirely, run:"
 		elog "  rc-update del ${AR_SVCNAME} boot"
 	fi
