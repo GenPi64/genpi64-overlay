@@ -5,3 +5,6 @@
 # repo, so the likelyhood is pretty low. If it does happen, we can re-assess.
 =virtual/dist-kernel-5.15.61-r1
 =virtual/dist-kernel-6.1.21
+=virtual/dist-kernel-6.1.58
+=virtual/dist-kernel-6.6.31
+=virtual/dist-kernel-6.12.47
