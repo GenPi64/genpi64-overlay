@@ -1,27 +1,28 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI="8"
 
-PYTHON_COMPAT=( python3_{6..11} )
+PYTHON_COMPAT=( python3_{8..10} )
 
-inherit eutils distutils-r1 mercurial
+inherit distutils-r1
 
 MY_PN="RPi.GPIO"
 MY_P="${MY_PN}-${PV}"
 DESCRIPTION="RPi.GPIO Python Module"
 HOMEPAGE="https://sourceforge.net/projects/raspberry-gpio-python"
-EHG_REPO_URI="http://hg.code.sf.net/p/raspberry-gpio-python/code"
-#HG_PROJECT="raspberry-gpio-python-code"
+SRC_URI="https://sourceforge.net/projects/raspberry-gpio-python/files/${MY_P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
+KEYWORDS="~arm arm64"
 IUSE=""
 RESTRICT="nomirror"
 
-DEPEND="
-"
+DEPEND=""
 
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
+
+PATCHES=( ${FILESDIR}/${PN}-build-gcc10.patch )
